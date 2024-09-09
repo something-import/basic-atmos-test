@@ -1,0 +1,10 @@
+import:
+  # Import the related component manifests into this layer manifest
+  - src/catalog/entra/group/defaults
+
+components:
+  terraform:
+    entra:
+      adminGroup:
+        metadata:
+          component: entra/group

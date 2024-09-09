@@ -1,0 +1,13 @@
+import:
+  # The `tenants/prd/_defaults`
+  # define the top-level Atmos stack `prd`
+  - tenants/prd/_defaults
+  # Import the layers (groups of components)
+  - tenants/prd/entra/groups/*
+  # - layers/data
+  # - layers/dns
+  # - layers/logs
+  # - layers/notifications
+  # - layers/firewalls
+  # - layers/networking
+  # - layers/eks
