@@ -5,7 +5,7 @@ resources: # resources to deploy/manage - ordered - ensure dependencies are list
   testGroup1: # logical name of resource (must be unique across resource collection) - Store in state lookup as: resourceType:logicalName
     resourceType: EIDGroup
     physicalId: "6322ddb5-ff83-49ab-818b-a3454ce59934" # explicitly set the id instead of it being inferred (or lookup from remote state based on logical name)
-    state: 'Provision' # set the desired state of the resource - Provision (create/update) | Deprovision (delete)
+    state: 'Manage' # set the desired state of the resource - Manage (create/update) | Unmanage (forget resource) | Destroy (delete)
     properties: # resource properties that will be passed to provider
       displayName: "hello world 01"
       mailNickname: "helloWorld01"
