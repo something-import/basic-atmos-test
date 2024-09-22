@@ -1,2 +1,2 @@
-vars:
+vars: # variables to inject at this scope (tenant) for all downstream resource definitions
   tenant: prd

@@ -1,0 +1,13 @@
+templateId: EGP001 # template reference
+parameters: null # any variables that are specific to this resource definition, tenant wide variables can be referenced directly
+dependencies: null # external dependencies that are managed outside of this resource definition
+resources: # resources to deploy/manage - ordered - ensure dependencies are listed before resources that reference them
+  testGroup1: # logical name of resource (must be unique across tenant)
+    resourceType: EIDGroup
+    physicalId: "6322ddb5-ff83-49ab-818b-a3454ce59934"
+    properties: # resource properties that will be passed to provider
+      displayName: "hello world 01"
+      mailNickname: "helloWorld01"
+      securityEnabled: true
+      groupTypes: []
+      description: "this is just a test 01"

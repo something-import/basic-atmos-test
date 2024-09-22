@@ -1,0 +1,69 @@
+# Schema for EIDGroup resource
+# Each property should be marked with any of the following:
+# PrimaryKey, (unique identifier of the resource - usually id)
+# AlternateKey (alternate key that can be sued to uniquely identify a resource)
+# Unique (value must be unique across resource collection)
+# Required (value must be specified)
+# ReadOnly (value cannot be set, only used for reading)
+# UniqueName (alternate primary key - e.g. used in graph bicep instead of id)
+# Optional (property is optional and doesn't need to be specified)
+# Nullable (value can be set to null even if it has been previously set)
+# ExcludeExport (by default, exclude from any resource export unless explicitly included)
+# CreateOnly (can only be set at creation, not on update - immutable once set)
+# ImmutableAfterCreation (can only be set on resource creation, it cannot be changed afterwards)
+# ImmutableIfSet (once value is set for property, it cannot be changed)
+schema:
+  uniqueIdentifier: id # primary key used for identifying / referencing up a resource
+  selectProperties: # default properties to include when exporting or limited view
+    [
+      id,
+      displayName,
+      mailNickname,
+      groupTypes,
+      securityEnabled,
+      description,
+      isAssignableToRole,
+    ]
+  properties:
+    id:
+      type: string
+      description: The unique identifier for the group. Read-only.
+      attributes: [PrimaryKey]
+    displayName:
+      type: string
+      description: "The display name for the group. This property is required when a group is created and can't be cleared during updates. Maximum length is 256 characters. Returned by default. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values), $search, and $orderby."
+      attributes: [Required, Unique]
+    mailNickname:
+      type: string
+      description: "The mail alias for the group, unique for Microsoft 365 groups in the organization. Maximum length is 64 characters."
+      attributes: [Required, Unique]
+    groupTypes:
+      type: array
+      description: "Specifies the group type and its membership. If the collection contains Unified, the group is a Microsoft 365 group; otherwise, it's either a security group or a distribution group. For details, see groups overview.If the collection includes DynamicMembership, the group has dynamic membership; otherwise, membership is static. Returned by default. Supports $filter (eq, not)."
+      attributes: [Required]
+      default: [] # default to security group
+    securityEnabled:
+      type: boolean
+      description: "Specifies whether the group is a security group. Required."
+      attributes: [Required]
+    description:
+      type: string
+      description: "An optional description for the group. Returned by default. Supports $filter (eq, ne, not, ge, le, startsWith) and $search."
+      attributes: [Optional]
+    allowExternalSenders:
+      type: boolean
+      description: "Default is false. Indicates whether people external to the organization can send messages to the group."
+      attributes: [Optional]
+      default: false # set a default value for the property
+    uniqueName:
+      type: string
+      description: "The unique identifier that can be assigned to a group and used as an alternate key. Immutable. Read-only."
+      attributes: [AlternateKey, UniqueName, ImmutableIfSet]
+    isAssignableToRole:
+      type: boolean
+      description: "Indicates whether this group can be assigned to a Microsoft Entra role. Optional. This property can only be set while creating the group and is immutable."
+      attributes: [CreateOnly, ImmutableAfterCreation]
+    createdDateTime:
+      type: dateTime
+      description: "Timestamp of when the group was created. The value can't be modified and is automatically populated when the group is created."
+      attributes: [ReadOnly]

@@ -1,0 +1,63 @@
+# config definition for a resource
+resourceType: EIDGroup
+service: Entra # name of the Microsoft service this resource resides in
+description: Represents a Microsoft Entra security group or Microsoft 365 (unified) group. Does not support creating mail-enabled security groups, use 'EXO_Group' instead.
+parent: # resourceType of the parent resource
+tags: []
+provider:
+  use: graph # active configured provider to use for handling CRUD operations
+  graph: # provider specification - specific information relating to the configured provider
+    namespace: microsoft.graph
+    resourceType: group
+    apiVersion: beta # version of the graph api to use for REST API
+    api: # supported API methods
+      list:
+        uri: "groups"
+        method: "GET"
+        queryParams:
+          expand: "extensions"
+          filter: "not(groupTypes/any(c:c eq 'DynamicMembership'))" # test use case for filter
+        respCode: [200] # successful HTTP response codes
+        respObj: true # expect response body to be returned
+      get:
+        uri: "groups/{id}"
+        method: "GET"
+        respCode: [200]
+        respObj: true
+      create:
+        uri: "groups"
+        method: "POST"
+        respCode: [201]
+        respObj: true
+      update:
+        uri: "groups/{id}"
+        method: "PATCH"
+        respCode: [204, 200]
+        respObj: false
+      upsert:
+        uri: "groups/(uniqueName='{uniqueName}')"
+        method: "PATCH"
+        respCode: [201, 204]
+        respObj: false
+      delete:
+        uri: "groups/{id}"
+        method: "DELETE"
+        respCode: [204]
+        respObj: false
+actions: # supported actions for the resource
+  export: false # export resource as part of snapshot (Export-*)
+  compare: false # compare resource against another (either current deployed version or passed in object) (Compare-*)
+  deploy: false # perform create and update operations for the resource (Set-*)
+permissions: # api permissions
+  graph: # name of provider
+    delegated: # permission type: user permissions (on behalf of)
+      read: ["Group.Read.All"] # if empty, then not support permission type
+      write: ["Group.ReadWrite.All"]
+    application: # application permissions (service principal)
+      read: ["Group.Read.All"]
+      write: ["Group.ReadWrite.All"]
+roles: # Entra assignable RBAC roles that support managing the resource
+  read: [] # roles that grant read access for inspecting resource
+  write: [] # roles that grant write (create, update, delete) to the resource
+defaults: # any default config for the resource
+  null
