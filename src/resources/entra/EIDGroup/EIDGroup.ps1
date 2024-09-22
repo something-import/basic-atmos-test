@@ -55,9 +55,7 @@ function Get-EIDGroup {
     }
 
     process {
-
         try {
-
             # Load the provider and its api definition
             $activeProvider = $Config.provider."$($Config.provider.use)"
             $apiProvider = $activeProvider.api.list
@@ -85,6 +83,7 @@ function Get-EIDGroup {
             }
 
             # Handle request uri query parameters (odata)
+            # Move this to shared function
             if ($apiProvider.Contains('queryParams')) {
                 Write-Verbose "Processing query parameters..."
 
@@ -192,6 +191,12 @@ function Compare-EIDGroup {
     }
 
     process {
+
+        # Two supported comparison methods:
+
+        # Comparison 1 - Compare passed in resource with one in cloud provider - requires using Get-EIDGroup to compare existing
+
+        # Comparison 2 - Compare passed in resource with another definition (additional parameter) - doesn't require connection
 
     }
 
