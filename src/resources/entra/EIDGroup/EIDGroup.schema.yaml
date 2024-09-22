@@ -9,11 +9,13 @@
 # Optional (property is optional and doesn't need to be specified)
 # Nullable (value can be set to null even if it has been previously set)
 # ExcludeExport (by default, exclude from any resource export unless explicitly included)
-# CreateOnly (can only be set at creation, not on update - immutable once set)
+# OnCreateOnly (can only be set at creation, not on update - immutable once set)
+# OnSetOnly (can only set after creation, not on create - value can be changed)
 # ImmutableAfterCreation (can only be set on resource creation, it cannot be changed afterwards)
-# ImmutableIfSet (once value is set for property, it cannot be changed)
+# ImmutableIfSet (can be set on or after resource creation, once value is set, it cannot be changed)
+# RequireOwnSetRequest (property can only be updated using own set request)
 schema:
-  uniqueIdentifier: id # primary key used for identifying / referencing up a resource
+  uniqueIdentifier: id # primary key used for identifying / referencing up a resource (physicalId)
   selectProperties: # default properties to include when exporting or limited view
     [
       id,
@@ -50,11 +52,6 @@ schema:
       type: string
       description: "An optional description for the group. Returned by default. Supports $filter (eq, ne, not, ge, le, startsWith) and $search."
       attributes: [Optional]
-    allowExternalSenders:
-      type: boolean
-      description: "Default is false. Indicates whether people external to the organization can send messages to the group."
-      attributes: [Optional]
-      default: false # set a default value for the property
     uniqueName:
       type: string
       description: "The unique identifier that can be assigned to a group and used as an alternate key. Immutable. Read-only."
@@ -62,8 +59,39 @@ schema:
     isAssignableToRole:
       type: boolean
       description: "Indicates whether this group can be assigned to a Microsoft Entra role. Optional. This property can only be set while creating the group and is immutable."
-      attributes: [CreateOnly, ImmutableAfterCreation]
+      attributes: [OnCreateOnly, ImmutableAfterCreation]
+    visibility:
+      type: string
+      description: "Specifies the visibility of a Microsoft 365 group. The possible values are: Private, Public, or empty (which is interpreted as Public)."
+      attributes: [Optional]
     createdDateTime:
       type: dateTime
       description: "Timestamp of when the group was created. The value can't be modified and is automatically populated when the group is created."
       attributes: [ReadOnly]
+    allowExternalSenders:
+      type: boolean
+      description: "Default is false. Indicates whether people external to the organization can send messages to the group."
+      attributes: [Optional, OnSetOnly, RequireOwnSetRequest]
+      default: false # set a default value for the property
+    autoSubscribeNewMembers:
+      type: boolean
+      description: "Indicates if new members added to the group are auto-subscribed to receive email notifications. Default value is false."
+      attributes: [Optional, OnSetOnly, RequireOwnSetRequest]
+      default: false # set a default value for the property
+    hideFromAddressLists:
+      type: boolean
+      description: "True if the group isn't displayed in certain parts of the Outlook UI: the Address Book, address lists for selecting message recipients, and the Browse Groups dialog for searching groups; otherwise, false. The default value is false."
+      attributes: [Optional, OnSetOnly, RequireOwnSetRequest]
+      default: false # set a default value for the property
+    hideFromOutlookClients:
+      type: boolean
+      description: "True if the group isn't displayed in Outlook clients, such as Outlook for Windows and Outlook on the web; otherwise, false. The default value is false."
+      attributes: [Optional, OnSetOnly, RequireOwnSetRequest]
+    isSubscribedByMail:
+      type: boolean
+      description: "Indicates whether the signed-in user is subscribed to receive email conversations. The default value is true."
+      attributes: [Optional, OnSetOnly, RequireOwnSetRequest]
+    unseenCount:
+      type: int32
+      description: "Count of conversations that received new posts since the signed-in user last visited the group."
+      attributes: [Optional, OnSetOnly, RequireOwnSetRequest]

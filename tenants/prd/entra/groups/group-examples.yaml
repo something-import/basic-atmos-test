@@ -1,10 +1,11 @@
 templateId: EGP001 # template reference
-parameters: null # any variables that are specific to this resource definition, tenant wide variables can be referenced directly
-dependencies: null # external dependencies that are managed outside of this resource definition
+parameters: null # any variables that are specific to this resource definition (pass in to each resource), tenant wide variables can be referenced directly
+dependencies: null # external dependencies that are managed outside of this resource definition (must exist before resource provisioning - check upon load)
 resources: # resources to deploy/manage - ordered - ensure dependencies are listed before resources that reference them
-  testGroup1: # logical name of resource (must be unique across tenant)
+  testGroup1: # logical name of resource (must be unique across resource collection) - Store in state lookup as: resourceType:logicalName
     resourceType: EIDGroup
-    physicalId: "6322ddb5-ff83-49ab-818b-a3454ce59934"
+    physicalId: "6322ddb5-ff83-49ab-818b-a3454ce59934" # explicitly set the id instead of it being inferred (or lookup from remote state based on logical name)
+    state: 'Provision' # set the desired state of the resource - Provision (create/update) | Deprovision (delete)
     properties: # resource properties that will be passed to provider
       displayName: "hello world 01"
       mailNickname: "helloWorld01"

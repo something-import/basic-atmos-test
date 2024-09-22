@@ -12,13 +12,16 @@ function Get-EIDGroup {
         # id or other primary key for resource in cloud service
         [Parameter(Mandatory = $false)]
         [string]
-        $PhysicalId,
+        $PhysicalId, # for resources that only ever have one object (like policies) use a different prop that is passed in to signify
         [Parameter(Mandatory = $false)]
         $Properties,
         [Parameter(Mandatory = $false)]
         $Schema,
         [Parameter(Mandatory = $false)]
-        $Config
+        $Config,
+        [Parameter(Mandatory = $false)]
+        [string]
+        $ResourceType
     )
 
     begin {
@@ -28,11 +31,13 @@ function Get-EIDGroup {
             # allow storing schema and config in $script variable to save computation every time
             if (!$Schema -or !$Config) {
                 Write-Verbose "Loading resource dependencies..."
-                $resourceTypeName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+                if (!$ResourceType) {
+                    $ResourceType = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+                }
 
                 if (!$Schema) {
                     Write-Verbose "Loading schema..."
-                    $schemaPath = Join-Path -Path $PSScriptRoot -ChildPath "${resourceTypeName}.schema.yaml"
+                    $schemaPath = Join-Path -Path $PSScriptRoot -ChildPath "${ResourceType}.schema.yaml"
                     if (Test-Path $schemaPath) {
                         $Schema = (Get-Content -Raw -Path $schemaPath | ConvertFrom-Yaml -Ordered).schema
                     }
@@ -40,7 +45,7 @@ function Get-EIDGroup {
 
                 if (!$Config) {
                     Write-Verbose "Loading config..."
-                    $configPath = Join-Path -Path $PSScriptRoot -ChildPath "${resourceTypeName}.config.yaml"
+                    $configPath = Join-Path -Path $PSScriptRoot -ChildPath "${ResourceType}.config.yaml"
                     if (Test-Path $configPath) {
                         $Config = (Get-Content -Raw -Path $configPath | ConvertFrom-Yaml -Ordered)
                     }
@@ -75,7 +80,8 @@ function Get-EIDGroup {
                 Write-Verbose "Identifier '$PhysicalId' provided, attempt to get existing resource"
                 $apiProvider = $activeProvider.api.get
                 $GetParameters.Uri += "$($apiProvider.uri)"
-                $GetParameters.Uri = $GetParameters.Uri -replace "{id}", $PhysicalId
+                $apiUniqueIdRef = $schema.uniqueIdentifier # get the property anme of the physical Id
+                $GetParameters.Uri = $GetParameters.Uri -replace "{$apiUniqueIdRef}", $PhysicalId
             }
             else {
                 # No key specified, get all resources
@@ -221,14 +227,18 @@ function Export-EIDGroup {
         [string[]]
         $Props,
         [Parameter(Mandatory = $false)]
-        $Connection
+        $Connection,
+        [Parameter(Mandatory = $false)]
+        $ResourceType
     )
 
     begin {
         Write-Verbose "Loading dependencies from directory..."
-        $resourceTypeName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
-        $schemaPath = Join-Path -Path $PSScriptRoot -ChildPath "${resourceTypeName}.schema.yaml"
-        $configPath = Join-Path -Path $PSScriptRoot -ChildPath "${resourceTypeName}.config.yaml"
+        if (!$ResourceType) {
+            $ResourceType = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+        }
+        $schemaPath = Join-Path -Path $PSScriptRoot -ChildPath "${ResourceType}.schema.yaml"
+        $configPath = Join-Path -Path $PSScriptRoot -ChildPath "${ResourceType}.config.yaml"
         if (Test-Path $schemaPath) {
             $Schema = (Get-Content -Raw -Path $schemaPath | ConvertFrom-Yaml -Ordered).schema
         }
